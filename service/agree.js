@@ -5,8 +5,16 @@ const UserModel = require('../dao/model').UserModel;
 module.exports = (req, res, next) => {
 	let body = req.body;
 	let userId = sessions[req.headers.sessionid];
-	let bookId = body.bookId;
+	let bookId = body.bookId;//定义各个变量
 	UserModel.findOne({openId : userId}, (err, owner) =>{
+		//这里就是返回openId为其本人userId的一条文档
+		/**Model.findOne
+
+与 Model.find 相同，但只返回单个文档
+
+Model.findOne({ age: 5}, function (err, doc){
+  // doc 是单个文档
+});*/
 		if(!err){
 			for(let i=0;i<owner.publishedBooks.length;i++){
 				console.log(owner.publishedBooks[i]._id);
@@ -21,6 +29,7 @@ module.exports = (req, res, next) => {
 			for(let i=0;i<owner.borrowMessages.length;i++){
 				if(owner.borrowMessages[i].bookId == bookId){
 					owner.borrowMessages.splice(i,1);
+					//splice() 方法向/从数组中添加/删除项目，然后返回被删除的项目
 					break;
 				}
 			}
@@ -55,6 +64,7 @@ module.exports = (req, res, next) => {
 	//});
 	UserModel.update({openId : body.borrowerId, "borrowedBooks.bookId" : bookId}, {$set: {"borrowedBooks.$.borrowingStatus" : '借阅中' } } ,(err, result) => {
 		if(!err){
+			//如果同意借阅了就把借书信息更新
 			res.status(200).send();
 			next();
 		}
